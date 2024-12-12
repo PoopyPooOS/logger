@@ -145,6 +145,13 @@ pub fn highlight_source<S: Into<String>>(
 #[macro_export]
 macro_rules! set_app_name {
     () => {
-        env::set_var("LOGGER_APP_NAME", env!("CARGO_PKG_NAME"))
+        std::env::set_var("LOGGER_APP_NAME", env!("CARGO_PKG_NAME"))
+    };
+}
+
+#[macro_export]
+macro_rules! unset_app_name {
+    () => {
+        std::env::remove_var("LOGGER_APP_NAME")
     };
 }
