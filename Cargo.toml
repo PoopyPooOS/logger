@@ -4,5 +4,9 @@ description = "Logger with rustc-like formatting"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+log = ["dep:log"]
+
 [dependencies]
 colored = "2.1.0"
+log = { version = "0.4.22", optional = true }

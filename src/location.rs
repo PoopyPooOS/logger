@@ -34,12 +34,10 @@ impl Location {
     pub fn read(&self) -> io::Result<String> {
         if let Some(path) = &self.path {
             fs::read_to_string(path)
+        } else if let Some(text) = &self.text {
+            return Ok(text.clone());
         } else {
-            if let Some(text) = &self.text {
-                return Ok(text.clone());
-            } else {
-                return Err(io::Error::new(io::ErrorKind::NotFound, "Source not found"));
-            }
+            return Err(io::Error::new(io::ErrorKind::NotFound, "Source not found"));
         }
     }
 }

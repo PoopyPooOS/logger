@@ -6,6 +6,11 @@ pub mod level;
 pub mod location;
 pub mod utils; // Sharing is caring
 
+#[cfg(feature = "log")]
+mod log_impl;
+#[cfg(feature = "log")]
+pub use log_impl::{init, Logger};
+
 pub use colored::{Color, Colorize};
 pub use level::LogLevel;
 pub use location::Location;
@@ -57,7 +62,7 @@ impl Display for Log {
         let padding_size = last_line_string.len() + 1;
         let padding = " ".repeat(padding_size);
 
-        let app_name = env::var("LOGGER_APP_NAME").unwrap_or(String::new());
+        let app_name = env::var("LOGGER_APP_NAME").unwrap_or_default();
 
         // Log level and message
         writeln!(
