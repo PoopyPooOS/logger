@@ -8,6 +8,7 @@ pub mod utils; // Sharing is caring
 
 #[cfg(feature = "log")]
 mod log_impl;
+pub mod panic;
 #[cfg(feature = "log")]
 pub use log_impl::{init, Logger};
 
@@ -83,10 +84,8 @@ impl Display for Log {
             // Source
             writeln!(f, "{}{}", padding, "|".blue().bold())?;
 
-            if let Ok(source) = location.read() {
-                let source = utils::remove_excess_tabs(source);
-                highlight_source(f, source, location, &padding, self.level)?;
-            }
+            let source = utils::remove_excess_tabs(&location.text);
+            highlight_source(f, source, location, &padding, self.level)?;
         }
 
         // Hint
