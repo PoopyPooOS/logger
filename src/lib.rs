@@ -4,11 +4,11 @@
 pub mod helpers;
 pub mod level;
 pub mod location;
+pub mod panic;
 pub mod utils; // Sharing is caring
 
 #[cfg(feature = "log")]
 mod log_impl;
-pub mod panic;
 #[cfg(feature = "log")]
 pub use log_impl::{init, Logger};
 
