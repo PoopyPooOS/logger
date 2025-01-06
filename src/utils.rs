@@ -5,11 +5,15 @@ pub fn highlight(input: impl Into<String>, range: &RangeInclusive<usize>, color:
     let input: String = input.into();
     let input_len = input.len();
 
-    let start = range.start().min(&input_len).saturating_sub(1);
+    let mut start = range.start().min(&input_len).saturating_sub(1);
     let end = range.end().min(&input_len).saturating_sub(1);
 
     if start > end {
         return input;
+    }
+
+    if end - start == 1 {
+        start += 1;
     }
 
     let before = &input[..start];
@@ -23,11 +27,15 @@ pub fn bold_highlight(input: impl Into<String>, range: &RangeInclusive<usize>) -
     let input: String = input.into();
     let input_len = input.len();
 
-    let start = range.start().min(&input_len).saturating_sub(1);
+    let mut start = range.start().min(&input_len).saturating_sub(1);
     let end = range.end().min(&input_len).saturating_sub(1);
 
     if start > end {
         return input;
+    }
+
+    if end - start == 1 {
+        start += 1;
     }
 
     let before = &input[..start];
