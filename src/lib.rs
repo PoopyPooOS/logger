@@ -151,6 +151,9 @@ macro_rules! set_app_name {
     () => {
         std::env::set_var("LOGGER_APP_NAME", env!("CARGO_PKG_NAME"))
     };
+    ($name:expr) => {
+        std::env::set_var("LOGGER_APP_NAME", $name)
+    };
 }
 
 #[macro_export]
