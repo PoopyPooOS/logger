@@ -1,6 +1,6 @@
 use std::{fmt::Display, fs, io, ops::RangeInclusive, path::PathBuf};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Location {
     pub path: Option<PathBuf>,
     pub text: String,
@@ -30,6 +30,11 @@ impl Location {
             lines,
             section: None,
         }
+    }
+
+    pub fn lines(mut self, lines: RangeInclusive<usize>) -> Self {
+        self.lines = lines;
+        self
     }
 
     pub fn section(mut self, section: RangeInclusive<usize>) -> Self {
