@@ -60,7 +60,7 @@ impl Log {
 impl Display for Log {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let last_line_string = if let Some(ref location) = self.location {
-            location.lines.end().to_string()
+            (location.lines.end() + 1).to_string()
         } else {
             String::new()
         };
