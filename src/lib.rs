@@ -120,7 +120,7 @@ pub fn highlight_source<S: Into<String>>(
     f: &mut Formatter<'_>,
     source: S,
     location: &Location,
-    padding: &str,
+    mut padding: &str,
     level: LogLevel,
 ) -> fmt::Result {
     let source: String = source.into();
@@ -131,6 +131,11 @@ pub fn highlight_source<S: Into<String>>(
         }
 
         let line_number = (idx + 1).to_string().blue().bold();
+        let line_number_len = line_number.len();
+
+        if padding.len() - line_number_len == 1 {
+            padding = &padding[line_number_len - 1..];
+        }
 
         write!(f, "{line_number}{}{} ", &padding[1..], "|".blue().bold())?;
 
