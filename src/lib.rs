@@ -37,6 +37,11 @@ impl Log {
         }
     }
 
+    pub fn message(mut self, message: impl Into<String>) -> Self {
+        self.message = message.into();
+        self
+    }
+
     pub fn location(mut self, location: Location) -> Self {
         self.location = Some(location);
         self
