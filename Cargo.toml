@@ -1,8 +1,10 @@
 [package]
 name = "logger"
-description = "Logger with rustc-like formatting"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
+
+[lib]
+crate-type = ["dylib", "rlib"]
 
 [features]
 log = ["dep:log"]

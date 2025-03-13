@@ -9,8 +9,9 @@ pub mod utils; // Sharing is caring
 
 #[cfg(feature = "log")]
 mod log_impl;
+use location::Section;
 #[cfg(feature = "log")]
-pub use log_impl::{init, Logger};
+pub use log_impl::{Logger, init};
 
 pub use colored::{Color, Colorize};
 pub use level::LogLevel;
@@ -59,8 +60,10 @@ impl Log {
 
 impl Display for Log {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let last_line_string = if let Some(ref location) = self.location {
-            (location.lines.end() + 1).to_string()
+        let last_line_string = if let Some(ref location) = self.location
+            && let Some(ref section) = location.section
+        {
+            (section.lines().end() + 1).to_string()
         } else {
             String::new()
         };
@@ -86,21 +89,38 @@ impl Display for Log {
         if let Some(location) = &self.location {
             writeln!(f, "{}{} {}", &padding[1..], "-->".blue().bold(), location)?;
 
-            // Source
-            writeln!(f, "{}{}", padding, "|".blue().bold())?;
+            if location.section.is_some() {
+                // Source
+                writeln!(f, "{}{}", padding, "|".blue().bold())?;
 
-            let source = utils::remove_excess_tabs(&location.text);
-            highlight_source(f, source, location, &padding, self.level)?;
+                let source = utils::remove_excess_tabs(&location.text);
+                highlight_source(f, source, location, &padding, self.level)?;
+            }
         }
 
         // Hint
         if let Some(hint) = &self.hint {
-            if self.location.is_some() {
+            if self
+                .location
+                .as_ref()
+                .is_some_and(|location| location.section.is_some())
+            {
                 writeln!(f, "{}{}", padding, "|".blue().bold())?;
             }
 
-            writeln!(f, "{}{} {} {}", padding, "|".blue().bold(), "help:".bold(), hint)?;
-        } else if self.location.is_some() {
+            writeln!(
+                f,
+                "{}{} {} {}",
+                padding,
+                "|".blue().bold(),
+                "help:".bold(),
+                hint
+            )?;
+        } else if self
+            .location
+            .as_ref()
+            .is_some_and(|location| location.section.is_some())
+        {
             writeln!(f, "{}{}", padding, "|".blue().bold())?;
         }
 
@@ -123,10 +143,16 @@ pub fn highlight_source<S: Into<String>>(
     mut padding: &str,
     level: LogLevel,
 ) -> fmt::Result {
-    let source: String = source.into();
+    let section = &location.section.clone().unwrap_or(Section::full());
+    let highlighted = match level {
+        LogLevel::Trace | LogLevel::Debug | LogLevel::Info => {
+            utils::bold_highlight(source, section)
+        }
+        _ => utils::highlight(source, section, level.into()),
+    };
 
-    for (idx, line) in source.lines().enumerate() {
-        if !utils::range_contains(&location.lines, idx) {
+    for (idx, line) in highlighted.lines().enumerate() {
+        if !utils::range_contains(&section.lines(), idx) {
             continue;
         }
 
@@ -138,31 +164,20 @@ pub fn highlight_source<S: Into<String>>(
         }
 
         write!(f, "{line_number}{}{} ", &padding[1..], "|".blue().bold())?;
-
-        if let Some(section) = &location.section {
-            writeln!(
-                f,
-                "{}",
-                match level {
-                    LogLevel::Info | LogLevel::Debug | LogLevel::Trace => utils::bold_highlight(line, section),
-                    _ => utils::highlight(line, section, level.into()),
-                }
-            )?;
-        } else {
-            writeln!(f, "{}", line.color(level).bold())?;
-        }
+        writeln!(f, "{line}")?;
     }
 
     Ok(())
 }
 
+/// SAFETY: See <https://doc.rust-lang.org/std/env/fn.set_var.html#safety> to know when this is safe to use.
 #[macro_export]
 macro_rules! set_app_name {
     () => {
-        std::env::set_var("LOGGER_APP_NAME", env!("CARGO_PKG_NAME"))
+        unsafe { std::env::set_var("LOGGER_APP_NAME", env!("CARGO_PKG_NAME")) }
     };
     ($name:expr) => {
-        std::env::set_var("LOGGER_APP_NAME", $name)
+        unsafe { std::env::set_var("LOGGER_APP_NAME", $name) }
     };
 }
 

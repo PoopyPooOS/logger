@@ -2,48 +2,48 @@ macro_rules! define_log_helper {
     ($name:ident, $make_name:ident, $level:ident) => {
         #[macro_export]
         macro_rules! $name {
-            ($message:expr) => {{
+            (location: $location:expr, hint: $hint:expr, $$($$arg:tt)+) => {{
                 $crate::Log {
                     level: $crate::level::LogLevel::$level,
-                    message: $message.to_string(),
-                    location: None,
-                    hint: None,
+                    message: format!($$($$arg)*),
+                    location: Some($location),
+                    hint: Some($hint.to_string()),
                 }
                 .output();
             }};
-            ($message:expr, location: $location:expr) => {{
+            (hint: $hint:expr, location: $location:expr, $$($$arg:tt)+) => {{
                 $crate::Log {
                     level: $crate::level::LogLevel::$level,
-                    message: $message.to_string(),
+                    message: format!($$($$arg)*),
+                    location: Some($location),
+                    hint: Some($hint.to_string()),
+                }
+                .output();
+            }};
+            (location: $location:expr, $$($$arg:tt)+) => {{
+                $crate::Log {
+                    level: $crate::level::LogLevel::$level,
+                    message: format!($$($$arg)*),
                     location: Some($location),
                     hint: None,
                 }
                 .output();
             }};
-            ($message:expr, hint: $hint:expr) => {{
+            (hint: $hint:expr, $$($$arg:tt)+) => {{
                 $crate::Log {
                     level: $crate::level::LogLevel::$level,
-                    message: $message.to_string(),
+                    message: format!($$($$arg)*),
                     location: None,
                     hint: Some($hint.to_string()),
                 }
                 .output();
             }};
-            ($message:expr, location: $location:expr, hint: $hint:expr) => {{
+            ($$($$arg:tt)+) => {{
                 $crate::Log {
                     level: $crate::level::LogLevel::$level,
-                    message: $message.to_string(),
-                    location: Some($location),
-                    hint: Some($hint.to_string()),
-                }
-                .output();
-            }};
-            ($message:expr, hint: $hint:expr, location: $location:expr) => {{
-                $crate::Log {
-                    level: $crate::level::LogLevel::$level,
-                    message: $message.to_string(),
-                    location: Some($location),
-                    hint: Some($hint.to_string()),
+                    message: format!($$($$arg)*),
+                    location: None,
+                    hint: None,
                 }
                 .output();
             }};
@@ -51,44 +51,44 @@ macro_rules! define_log_helper {
 
         #[macro_export]
         macro_rules! $make_name {
-            ($message:expr) => {{
+            (location: $location:expr, hint: $hint:expr, $$($$arg:tt)+) => {{
                 $crate::Log {
                     level: $crate::level::LogLevel::$level,
-                    message: $message.to_string(),
-                    location: None,
-                    hint: None,
+                    message: format!($$($$arg)*),
+                    location: Some($location),
+                    hint: Some($hint.to_string()),
                 }
             }};
-            ($message:expr, location: $location:expr) => {{
+            (hint: $hint:expr, location: $location:expr, $$($$arg:tt)+) => {{
                 $crate::Log {
                     level: $crate::level::LogLevel::$level,
-                    message: $message.to_string(),
+                    message: format!($$($$arg)*),
+                    location: Some($location),
+                    hint: Some($hint.to_string()),
+                }
+            }};
+            (location: $location:expr, $$($$arg:tt)+) => {{
+                $crate::Log {
+                    level: $crate::level::LogLevel::$level,
+                    message: format!($$($$arg)*),
                     location: Some($location),
                     hint: None,
                 }
             }};
-            ($message:expr, hint: $hint:expr) => {{
+            (hint: $hint:expr, $$($$arg:tt)+) => {{
                 $crate::Log {
                     level: $crate::level::LogLevel::$level,
-                    message: $message.to_string(),
+                    message: format!($$($$arg)*),
                     location: None,
                     hint: Some($hint.to_string()),
                 }
             }};
-            ($message:expr, location: $location:expr, hint: $hint:expr) => {{
+            ($$($$arg:tt)+) => {{
                 $crate::Log {
                     level: $crate::level::LogLevel::$level,
-                    message: $message.to_string(),
-                    location: Some($location),
-                    hint: Some($hint.to_string()),
-                }
-            }};
-            ($message:expr, hint: $hint:expr, location: $location:expr) => {{
-                $crate::Log {
-                    level: $crate::level::LogLevel::$level,
-                    message: $message.to_string(),
-                    location: Some($location),
-                    hint: Some($hint.to_string()),
+                    message: format!($$($$arg)*),
+                    location: None,
+                    hint: None,
                 }
             }};
         }

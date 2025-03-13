@@ -1,40 +1,53 @@
+use crate::location::Section;
 use colored::{Color, Colorize};
 use std::ops::RangeInclusive;
 
-pub fn highlight(input: impl Into<String>, range: &RangeInclusive<usize>, color: Color) -> String {
+pub fn thing(
+    input: impl Into<String>,
+    section: &Section,
+    style: impl Fn(&str) -> String,
+) -> String {
     let input: String = input.into();
-    let input_len = input.len();
 
-    let start = *range.start().min(&input_len);
-    let end = range.end().min(&input_len).saturating_sub(1);
+    let line_start = *section.lines().start();
+    let line_end = *section.lines().end();
+    let col_start = *section.cols().start();
+    let col_end = *section.cols().end();
 
-    if start > end {
-        return input;
+    let lines: Vec<&str> = input.lines().collect();
+
+    let mut highlighted = String::new();
+
+    for (i, line) in lines.iter().enumerate() {
+        if i < line_start || i > line_end {
+            highlighted.push_str(line);
+        } else {
+            let start_col = if i == line_start { col_start } else { 0 };
+            let end_col = if i == line_end { col_end } else { line.len() };
+
+            let pre_highlight = &line[..start_col.min(line.len())];
+            let to_highlight = &line[start_col.min(line.len())..end_col.min(line.len())];
+            let post_highlight = &line[end_col.min(line.len())..];
+
+            highlighted.push_str(pre_highlight);
+            highlighted.push_str(&style(to_highlight));
+            highlighted.push_str(post_highlight);
+        }
+
+        if i < lines.len() - 1 {
+            highlighted.push('\n');
+        }
     }
 
-    let before = &input[..start];
-    let highlighted = &input[start..=end];
-    let after = &input[(end + 1)..];
-
-    format!("{}{}{}", before, highlighted.color(color).bold(), after)
+    highlighted
 }
 
-pub fn bold_highlight(input: impl Into<String>, range: &RangeInclusive<usize>) -> String {
-    let input: String = input.into();
-    let input_len = input.len();
+pub fn highlight(input: impl Into<String>, section: &Section, color: Color) -> String {
+    thing(input, section, |s| s.color(color).bold().to_string())
+}
 
-    let start = *range.start().min(&input_len);
-    let end = range.end().min(&input_len).saturating_sub(1);
-
-    if start > end {
-        return input;
-    }
-
-    let before = &input[..start];
-    let highlighted = &input[start..=end];
-    let after = &input[(end + 1)..];
-
-    format!("{}{}{}", before, highlighted.bold(), after)
+pub fn bold_highlight(input: impl Into<String>, section: &Section) -> String {
+    thing(input, section, |s| s.bold().to_string())
 }
 
 pub fn range_contains(range: &RangeInclusive<usize>, idx: usize) -> bool {
@@ -46,7 +59,11 @@ pub fn remove_excess_tabs(input: impl Into<String>) -> String {
     let min_whitespace = input
         .lines()
         .filter(|line| !line.trim().is_empty()) // Ignore empty lines
-        .map(|line| line.chars().take_while(|&c| c == ' ' || c == '\t').collect::<String>())
+        .map(|line| {
+            line.chars()
+                .take_while(|&c| c == ' ' || c == '\t')
+                .collect::<String>()
+        })
         .min_by_key(String::len)
         .unwrap_or_default();
 
