@@ -1,4 +1,4 @@
-use crate::{location::Section, Location, Log, LogLevel};
+use crate::{Location, Log, LogLevel, location::Section};
 use std::{
     panic::{self, PanicHookInfo},
     process,
@@ -47,11 +47,20 @@ impl From<&panic::Location<'_>> for Location {
 
         let location = Location::from_path(path);
         match location {
-            Ok(location) => location.section(section),
+            Ok(location) => {
+                #[cfg(debug_assertions)]
+                return location.section(section);
+
+                #[cfg(not(debug_assertions))]
+                return location;
+            }
             Err(_) => Location {
                 path: Some(path.into()),
                 text: String::new(),
+                #[cfg(debug_assertions)]
                 section: Some(section),
+                #[cfg(not(debug_assertions))]
+                section: None,
             },
         }
     }
