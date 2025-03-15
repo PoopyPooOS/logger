@@ -1,4 +1,4 @@
-use crate::{Location, Log, LogLevel, location::Section};
+use crate::{Location, Log, LogLevel};
 use std::{
     panic::{self, PanicHookInfo},
     process,
@@ -42,8 +42,14 @@ impl From<&panic::Location<'_>> for Location {
     fn from(location: &panic::Location) -> Self {
         let path = location.file();
 
-        let section =
-            Section((location.line() as usize - 1, 0)..=(location.line() as usize - 1, usize::MAX));
+        #[cfg(debug_assertions)]
+        let section = crate::location::Section(
+            ((location.line() as usize).saturating_sub(1), 0)
+                ..=(
+                    (location.line() as usize).saturating_sub(1),
+                    (location.column() as usize).saturating_sub(1),
+                ),
+        );
 
         let location = Location::from_path(path);
         match location {

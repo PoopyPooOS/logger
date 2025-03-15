@@ -85,11 +85,13 @@ impl Display for Log {
             format!(": {}", self.message).bold()
         )?;
 
+        let section_is_valid = |s: &Section| s.lines().start() != s.lines().end();
+
         // Location
         if let Some(location) = &self.location {
             writeln!(f, "{}{} {}", &padding[1..], "-->".blue().bold(), location)?;
 
-            if location.section.is_some() {
+            if location.section.as_ref().is_some_and(section_is_valid) {
                 // Source
                 writeln!(f, "{}{}", padding, "|".blue().bold())?;
 
@@ -103,7 +105,7 @@ impl Display for Log {
             if self
                 .location
                 .as_ref()
-                .is_some_and(|location| location.section.is_some())
+                .is_some_and(|location| location.section.as_ref().is_some_and(section_is_valid))
             {
                 writeln!(f, "{}{}", padding, "|".blue().bold())?;
             }
@@ -119,7 +121,7 @@ impl Display for Log {
         } else if self
             .location
             .as_ref()
-            .is_some_and(|location| location.section.is_some())
+            .is_some_and(|location| location.section.as_ref().is_some_and(section_is_valid))
         {
             writeln!(f, "{}{}", padding, "|".blue().bold())?;
         }

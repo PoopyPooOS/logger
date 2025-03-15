@@ -116,8 +116,8 @@ impl Display for Location {
             if let Some(section) = &self.section {
                 format!(
                     ":{}:{}",
-                    section.lines().end() + 1,
-                    section.cols().end() + 1
+                    section.lines().end().saturating_add(1),
+                    section.cols().end().saturating_add(1)
                 )
             } else {
                 String::new()
