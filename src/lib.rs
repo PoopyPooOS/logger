@@ -186,6 +186,6 @@ macro_rules! set_app_name {
 #[macro_export]
 macro_rules! unset_app_name {
     () => {
-        std::env::remove_var("LOGGER_APP_NAME")
+        unsafe { std::env::remove_var("LOGGER_APP_NAME") }
     };
 }
