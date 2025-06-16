@@ -1,19 +1,18 @@
 #![feature(let_chains, macro_metavar_expr, concat_idents)]
-#![allow(clippy::must_use_candidate, clippy::return_self_not_must_use)]
 
 pub mod helpers;
 pub mod level;
 pub mod location;
 pub mod panic;
-pub mod utils; // Sharing is caring
+pub mod utils;
 
 #[cfg(feature = "log")]
 mod log_impl;
 use location::Section;
 #[cfg(feature = "log")]
-pub use log_impl::{Logger, init};
+pub use log_impl::{init, Logger};
 
-pub use colored::{Color, Colorize};
+pub use colored::{self, Color, Colorize};
 pub use level::LogLevel;
 pub use location::Location;
 use std::{
