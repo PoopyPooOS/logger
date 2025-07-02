@@ -1,4 +1,4 @@
-#![feature(let_chains, macro_metavar_expr, concat_idents)]
+#![feature(let_chains, macro_metavar_expr)]
 
 pub mod helpers;
 pub mod level;
